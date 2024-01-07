@@ -1,7 +1,10 @@
-# my-netflixgpt
+# my-netflix
 
 - configure create-react-app
 - Congigured TailwindCss
+- Header
+- Login Form
+- Sign Up Form
 
 
 # feature
