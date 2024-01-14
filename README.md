@@ -2,9 +2,12 @@
 
 - configure create-react-app
 - Congigured TailwindCss
+- Routing of Form
 - Header
 - Login Form
 - Sign Up Form
+- Form Validation
+- useRef Hooks
 
 
 # feature
