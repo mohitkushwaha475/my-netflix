@@ -1,6 +1,13 @@
 import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { checkValidateData } from "../utilities/Validate";
+import {  createUserWithEmailAndPassword ,signInWithEmailAndPassword,updateProfile} from "firebase/auth";
+import { toast } from "react-toastify";
+import { auth } from "../utilities/firebase";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {addUser} from'../utilities/userSlice'
+
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -8,6 +15,8 @@ const Login = () => {
   const name=useRef(null)
   const email = useRef(null);
   const password = useRef(null);
+  const navigate=useNavigate();
+  const dispatch= useDispatch()
 
   const handleButtonClick = () => {
     // validate email and passward
@@ -16,6 +25,62 @@ const Login = () => {
     console.log(password.current.value);
   const messsage=  checkValidateData(email.current.value,password.current.value);
   setErrorMessage(messsage)
+
+  if(messsage) return;
+
+  if(!isSignInForm)
+{
+  createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
+  .then((userCredential) => {
+    // Signed up 
+    const user = userCredential.user;
+    updateProfile(user, {
+      displayName: name.current.value, photoURL: "https://avatars.githubusercontent.com/u/63853723?v=4"
+    }).then(() => {
+      const {uid,email,displayName,photoURL}=auth.currentUser;
+      dispatch(addUser({uid:uid,email:email,displayName:displayName,photoURL:photoURL}))
+      console.log(user)
+      console.log("user is updated successfully")
+    toast.success("user is signup suceessfully !!")
+    navigate('/browse')
+    }).catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      setErrorMessage(errorCode+"-"+errorMessage)
+    });
+    
+    // ...
+    
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setErrorMessage(errorCode+"-"+errorMessage)
+    // ..
+  });
+
+
+}
+  else{
+    signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+    .then((userCredential) => {
+      // Signed in 
+      const user = userCredential.user;
+      console.log(user +" user is sign in successfully")
+      toast.success("user is sigin suceessfully !!");
+      navigate('/browse')
+      // ...
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      toast.error(errorMessage)
+    });
+  
+
+
+  }
+
   };
   const ToggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
